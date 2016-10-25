@@ -8,83 +8,51 @@
 #include <GLUT/glut.h>
 #include <stdio.h>
 
-static GLfloat spin = 0.0;
 
 void init()
 {
-    glClearColor(0.0, 0.5, 0.0, 0.0); //定义刷子的颜色，注意是重0-1取值，而不是0-255
-    //GL_SMOOTH（光滑着色-默认值)—独立的处理图元中各个顶点的颜色
-    //GL_FLAT(恒定着色)-使用图元中某个顶点的颜色来渲染整个图元。
+    glClearColor(0.0, 0.5, 0.0, 0.0);
     glShadeModel(GL_FLAT);
 }
 
 void display()
 {
-    glClear(GL_COLOR_BUFFER_BIT); //清理颜色缓冲区
-    glPushMatrix();
-    
-    glRotatef(spin, 0.0, 0.0, 1.0);
+    glClear(GL_COLOR_BUFFER_BIT);
     glColor3f(1.0, 1.0, 1.0);
-    glRectf(25.0, 25.0, 50.0, 50.0);
+    //glLoadIdentity(); //初始化矩阵
     
-    glPopMatrix();
-    glutSwapBuffers();
+    //gluLookAt(0.0, 0.0, 2.0, 0.0, 0.0, 0.0,0.0,1.0,0.0); //视图变换
+    //glScalef(1.0, 1.0, 1.0); //模型变换
+    glTranslatef(0.0, 0.0, -2.0);
+    glutWireCube(1.0);
+    glFlush();
 }
 
-void spinDisplay(void)
+void reshape(int w, int h)
 {
-    spin = spin + 1.0;
-    if (spin > 360.0)
-        spin = spin -360.0;
-    glutPostRedisplay(); //当前窗口需要重新绘制
-}
-
-void reShape(int w, int h)
-{
-    glViewport(0, 0, (GLsizei)w, (GLsizei)h); //让窗口系统打开窗口
-    
-    glMatrixMode(GL_PROJECTION);
+    glViewport(0, 0, (GLsizei)w, (GLsizei)h);
+    glMatrixMode(GL_PROJECTION); //投影矩阵-制定当前矩阵
     glLoadIdentity();
-    gluOrtho2D(0.0, (GLdouble)w, 0.0, (GLdouble)h); //以左下角为原点
-    //glOrtho(-50.0, 50.0, -50.0, 50.0, -1.0, 1.0);
-    
-    //glMatrixMode(GL_MODELVIEW);
-    //glLoadIdentity();
+    gluPerspective(60.0, 1.0,1.5,20.0);
+    //glFrustum(-1.0, 1.0, -1.0, 1.0, 1.5, 20.0); //将当前矩阵与一个透视矩阵相乘，把当前矩阵转变成透视矩阵-透视变换
+    glMatrixMode(GL_MODELVIEW); //模型视图矩阵
+    glLoadIdentity(); //初始化矩阵
+    //glOrtho(0.0, w, 0.0, h, 5.0, 5.0);
 }
 
-void OnMouse(int button, int state, int x, int y)
-{
-    switch(button)
-    {
-        case GLUT_LEFT_BUTTON:
-        {
-            if (state == GLUT_DOWN)
-                glutIdleFunc(spinDisplay); //在双缓冲空闲时执行
-        }break;
-        case GLUT_RIGHT_BUTTON:
-        {
-            if (state == GLUT_DOWN)
-                glutIdleFunc(NULL);
-        }break;
-            default:
-            break;
-    }
-}
 
 int main(int argc, const char * argv[])
 {
 
     glutInit(&argc, argv);
-    glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB); //显示模式:GLUT_DOUBLE-双缓冲
+    glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB); //显示模式:GLUT_DOUBLE-双缓冲
     glutInitWindowPosition(1450, 370);
     glutCreateWindow("Hello OpenGL");
     
     init();
     glutDisplayFunc(display);
-    glutReshapeFunc(reShape);
-    glutMouseFunc(OnMouse);
+    glutReshapeFunc(reshape);
     glutMainLoop();
-    
     
     return 0;
 }
